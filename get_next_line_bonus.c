@@ -66,7 +66,7 @@ static char	*read_line(char *line)
 char	*get_next_line(int fd)
 {
 	static char	*str;
-	char		*buffer;
+	char		*buffer[fd];
 	char		*line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
@@ -74,11 +74,11 @@ char	*get_next_line(int fd)
 		free(str);
 		return (str);
 	}
-	buffer = malloc(((size_t)BUFFER_SIZE + 1) * sizeof(char));
-	if (!buffer)
+	buffer[fd] = malloc(((size_t)BUFFER_SIZE + 1));
+	if (!buffer[fd])
 		return (NULL);
-	line = get_lines(fd, str, buffer);
-	free(buffer);
+	line = get_lines(fd, str, buffer[fd]);
+	free(buffer[fd]);
 	if (!line)
 	{
 		free(str);
