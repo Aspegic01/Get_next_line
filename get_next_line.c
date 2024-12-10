@@ -24,17 +24,16 @@ char	*read_from_fd(int fd, char **buffer)
 	while (!ft_strchr(*buffer, '\n'))
 	{
 		bytes_read = read(fd, temp, BUFFER_SIZE);
-		if (bytes_read <= 0)
+		if (bytes_read < 0)
+			return (free(temp), NULL);
+		if (bytes_read == 0)
 			break ;
 		temp[bytes_read] = '\0';
 		new_buffer = ft_strjoin(*buffer, temp);
 		free(*buffer);
+		if (!new_buffer)
+			return (free(*buffer), free(temp), NULL);
 		*buffer = new_buffer;
-		if (!*buffer)
-		{
-			free(temp);
-			return (NULL);
-		}
 	}
 	free(temp);
 	return (*buffer);
@@ -53,7 +52,7 @@ char	*extract_line(char **buffer)
 		len = newline_pos - *buffer + 1;
 		line = ft_substr(*buffer, 0, len);
 		if (!line)
-			return (NULL);
+			return (free(*buffer), NULL);
 		new_buffer = ft_strdup(newline_pos + 1);
 		free(*buffer);
 		*buffer = new_buffer;
@@ -73,12 +72,7 @@ char	*get_next_line(int fd)
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	if (!buffer)
-	{
-		buffer = malloc(1);
-		if (!buffer)
-			return (NULL);
-		buffer[0] = '\0';
-	}
+		buffer = ft_strdup("");
 	if (!read_from_fd(fd, &buffer))
 		return (NULL);
 	if (!buffer || buffer[0] == '\0')
